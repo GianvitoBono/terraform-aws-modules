@@ -1,8 +1,8 @@
 # AWS VPC Module
 
-## Usage example:
+## Usage example
 
-```
+```hcl
 
 module "vpc" {
   source = "github.com/GianvitoBono/terraform-aws-modules//vpc?ref=v1.0.0"
