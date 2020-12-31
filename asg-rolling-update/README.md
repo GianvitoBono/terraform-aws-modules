@@ -3,7 +3,7 @@
 # Example usage
 
 ```
-module "vpc" {
+module "asg-rolling-update" {
   source = "github.com/GianvitoBono/terraform-aws-modules//asg-rolling-update?ref=v1.0.0"
 
   app_name= "test-app"
@@ -24,3 +24,5 @@ module "vpc" {
   asg_ondemand_base_capacity=2
 }
 ```
+
+TODO: Add comments for variables usage
