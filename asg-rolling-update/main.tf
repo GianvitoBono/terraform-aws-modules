@@ -71,7 +71,10 @@ Resources:
     DeletionPolicy: Delete
 EOF
 
-  depends_on = [module.alb]
+  depends_on = [
+    module.alb_https,
+    module.alb
+  ]
 }
 
 resource "aws_security_group" "istance_sg" {
@@ -126,6 +129,8 @@ module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "5.10.0"
 
+  create_lb = var.lb_type == "application" && var.lb_protocol == "HTTP"
+
   name = "${var.app_name}-lb"
 
   load_balancer_type = var.lb_type
@@ -134,16 +139,66 @@ module "alb" {
   security_groups = [aws_security_group.loadbalancer_sg.id]
   subnets         = var.public_subnets_ids
 
-  https_listeners = var.lb_protocol == "HTTPS " ? [
+  http_tcp_listeners = [
+    {
+      port               = var.lb_port
+      protocol           = var.lb_protocol
+      target_group_index = 0
+    }
+  ]
+
+  target_groups = [
+    {
+      name_prefix          = "h1"
+      backend_protocol     = var.asg_target_protocol
+      backend_port         = var.asg_target_port
+      target_type          = "instance"
+      deregistration_delay = 10
+      health_check = {
+        enabled             = var.lb_heathcheck_enabled
+        interval            = var.lb_heathcheck_interval
+        path                = var.lb_heathcheck_path
+        port                = "traffic-port"
+        healthy_threshold   = var.lb_heathcheck_healthy_threshold
+        unhealthy_threshold = var.lb_heathcheck_unhealthy_threshold
+        timeout             = 6
+        protocol            = var.asg_target_protocol
+        matcher             = var.lb_heathcheck_matcher
+      }
+    },
+  ]
+
+  tags = {
+    "Name" = "${var.app_name}-${var.env}-alb"
+    "Env"  = var.env
+    "App"  = var.app_name
+  }
+}
+
+module "alb_https" {
+  source  = "terraform-aws-modules/alb/aws"
+  version = "5.10.0"
+
+  create_lb = var.lb_type == "application" && var.lb_protocol == "HTTPS"
+
+  name = "${var.app_name}-lb"
+
+  load_balancer_type = var.lb_type
+
+  vpc_id          = var.vpc_id
+  security_groups = [aws_security_group.loadbalancer_sg.id]
+  subnets         = var.public_subnets_ids
+
+  https_listeners = [
     {
       port               = var.lb_port
       protocol           = var.lb_protocol
       certificate_arn    = var.lb_certificate_arn
       target_group_index = 0
     }
-  ] : []
+  ]
 
-  http_tcp_listeners = var.lb_enable_http_to_https_redirect && var.lb_protocol == "HTTPS" ? [
+  http_tcp_listeners = var.lb_enable_http_to_https_redirect ? [
     {
       port        = 80
       protocol    = "HTTP"
@@ -154,13 +209,7 @@ module "alb" {
         status_code = "HTTP_301"
       }
     }
-  ] : [
-    {
-      port               = var.lb_port
-      protocol           = var.lb_protocol
-      target_group_index = 0
-    }
-  ]
+  ] : []
 
   target_groups = [
     {
