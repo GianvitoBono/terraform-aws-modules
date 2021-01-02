@@ -1,11 +1,11 @@
 # AWS VPC Module
 
-## Usage example:
+## Usage example
 
-```
+```hcl
 
 module "vpc" {
-  source = "github.com/GianvitoBono/terraform-aws-modules?ref=v1.0.0"
+  source = "github.com/GianvitoBono/terraform-aws-modules//vpc?ref=v1.0.0"
 
   # Name of the application this is needed to name all the resources
   app_name = "test_app"
