@@ -1,5 +1,5 @@
 locals {
-  tg_arns = [for tg_arn in module.alb.target_group_arns : tg_arn]
+  tg_arns = var.lb_protocol == "HTTP" ? [for tg_arn in module.alb.target_group_arns : tg_arn] : [for tg_arn in module.alb_https.target_group_arns : tg_arn]
 }
 
 resource "aws_launch_template" "this" {
