@@ -1,9 +1,9 @@
 output "alb_dns" {
-  value = module.alb.this_lb_dns_name
+  value = var.lb_type == "application" && var.lb_protocol == "HTTP" ? module.alb.this_lb_dns_name : module.alb_https.this_lb_dns_name
 }
 
 output "alb_arn" {
-  value = module.alb.this_lb_arn
+  value = var.lb_type == "application" && var.lb_protocol == "HTTP" ? module.alb.this_lb_arn : module.alb_https.this_lb_arn
 }
 
 output "istance_sg_id" {
