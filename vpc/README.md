@@ -20,7 +20,7 @@ module "vpc" {
       "name": "Public Subnet 1"   # Name of the subnet (you will see in the AWS console)
       "auto_assing_pip": true     # Decide if the resources launced in this subnet will have the possibiliti to attach a random public IP on startup (default false)
       "tf_res_id": "pub-sub-1"    # Unique ID for the subnet, this will be used only from terraform to bind with the AWS subnet ID when created (dont modify after creation, this will delete the subnet)
-  }
+  },
   {
       "cidr": "10.100.21.0/24"
       "is_private": true
