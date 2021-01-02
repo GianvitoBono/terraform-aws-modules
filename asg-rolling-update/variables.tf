@@ -23,7 +23,7 @@ variable "env" {
 variable "private_subnets_ids" {
   type        = list(string)
   description = "List of private subnets ids where the application shoud run"
-  defaults = []
+  default = []
 }
 
 variable "public_subnets_ids" {
